@@ -40,7 +40,6 @@
             100% { background-position: 0% 50%; }
         }
 
-        /* --- Top Bar & Branding --- */
         .top-bar { position: absolute; top: 0; left: 0; width: 100%; padding: 20px 30px; display: flex; justify-content: space-between; align-items: center; z-index: 10; }
         .brand-orbit { font-size: 20px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; display: flex; align-items: center; gap: 10px; text-shadow: 0 2px 8px rgba(0,0,0,0.8); }
         .brand-orbit i { color: #ffffff; font-size: 24px; }
@@ -49,19 +48,16 @@
         .nav-link:hover { color: var(--text-primary); background: rgba(255,255,255,0.1); }
         .nav-link.active { color: var(--accent-blue); }
 
-        /* --- Main Container --- */
         .main-container { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 100px 20px 40px; }
 
         .hero-title { font-size: 42px; font-weight: 700; margin-bottom: 10px; text-align: center; letter-spacing: -0.5px; }
         .hero-subtitle { font-size: 16px; color: var(--text-secondary); margin-bottom: 50px; text-align: center; }
 
-        /* --- Action Cards --- */
         .action-cards { display: flex; gap: 24px; max-width: 1000px; width: 100%; justify-content: center; flex-wrap: wrap; }
 
         .action-card { 
             background: var(--bg-card); 
             backdrop-filter: blur(20px); 
-            -webkit-backdrop-filter: blur(20px);
             border: 1px solid var(--border-color); 
             border-radius: 16px; 
             padding: 32px; 
@@ -100,12 +96,10 @@
         .action-card h3 { font-size: 18px; font-weight: 600; margin-bottom: 8px; }
         .action-card p { font-size: 13px; color: var(--text-secondary); line-height: 1.5; }
 
-        /* --- Forms Container --- */
         .form-container { 
             display: none; 
             background: var(--bg-card); 
             backdrop-filter: blur(20px); 
-            -webkit-backdrop-filter: blur(20px);
             border: 1px solid var(--border-color); 
             border-radius: 16px; 
             padding: 40px; 
@@ -184,10 +178,8 @@
         .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--border-color); }
         .divider span { padding: 0 16px; }
 
-        /* --- Schedule Form Specific --- */
         .schedule-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 
-        /* --- Status Messages --- */
         .status-msg { 
             padding: 12px 16px; 
             border-radius: 8px; 
@@ -199,12 +191,10 @@
         .status-msg.error { background: rgba(255, 59, 48, 0.15); color: #ff3b30; border: 1px solid rgba(255, 59, 48, 0.3); }
         .status-msg.success { background: rgba(52, 199, 89, 0.15); color: #34c759; border: 1px solid rgba(52, 199, 89, 0.3); }
 
-        /* --- Footer --- */
         .footer { padding: 20px; text-align: center; color: var(--text-muted); font-size: 12px; }
         .footer a { color: var(--accent-blue); text-decoration: none; }
         .footer a:hover { text-decoration: underline; }
 
-        /* --- Features Row --- */
         .features-row { display: flex; gap: 40px; margin-top: 60px; justify-content: center; }
         .feature-item { display: flex; align-items: center; gap: 10px; color: var(--text-secondary); font-size: 13px; }
         .feature-item i { color: var(--accent-blue); font-size: 16px; }
@@ -212,7 +202,6 @@
 </head>
 <body>
 
-    <!-- Top Bar -->
     <div class="top-bar">
         <div class="brand-orbit">
             <i class="fa-solid fa-atom"></i> Orbit
@@ -224,12 +213,10 @@
         </div>
     </div>
 
-    <!-- Main Container -->
     <div class="main-container">
         <h1 class="hero-title">Video Conferencing</h1>
         <p class="hero-subtitle">Secure, high-quality meetings powered by LiveKit</p>
 
-        <!-- Action Cards -->
         <div class="action-cards" id="actionCards">
             <div class="action-card" onclick="showForm('create')">
                 <div class="icon-wrapper"><i class="fa-solid fa-video"></i></div>
@@ -248,7 +235,6 @@
             </div>
         </div>
 
-        <!-- Create Meeting Form -->
         <div class="form-container" id="formCreate">
             <button class="back-btn" onclick="hideForms()"><i class="fa-solid fa-arrow-left"></i> Back</button>
             <div class="form-header">
@@ -267,7 +253,6 @@
             </form>
         </div>
 
-        <!-- Join Meeting Form -->
         <div class="form-container" id="formJoin">
             <button class="back-btn" onclick="hideForms()"><i class="fa-solid fa-arrow-left"></i> Back</button>
             <div class="form-header">
@@ -290,7 +275,6 @@
             </form>
         </div>
 
-        <!-- Schedule Meeting Form -->
         <div class="form-container" id="formSchedule">
             <button class="back-btn" onclick="hideForms()"><i class="fa-solid fa-arrow-left"></i> Back</button>
             <div class="form-header">
@@ -334,30 +318,26 @@
         </div>
     </div>
 
-    <!-- Features -->
     <div class="features-row">
         <div class="feature-item"><i class="fa-solid fa-shield-halved"></i> End-to-end encrypted</div>
         <div class="feature-item"><i class="fa-solid fa-globe"></i> Global CDN</div>
         <div class="feature-item"><i class="fa-solid fa-users"></i> Up to 100 participants</div>
     </div>
 
-    <!-- Footer -->
     <div class="footer">
         Powered by <a href="https://livekit.io" target="_blank">LiveKit</a> • Built with Orbit by Eburon AI
     </div>
 
     <script>
-        const API_BASE = window.location.origin;
+        const API_BASE = window.location.origin + '/api';
 
         function showForm(type) {
             document.getElementById('actionCards').style.display = 'none';
             document.querySelector('.hero-title').style.display = 'none';
             document.querySelector('.hero-subtitle').style.display = 'none';
             document.querySelector('.features-row').style.display = 'none';
-
             document.querySelectorAll('.form-container').forEach(f => f.classList.remove('active'));
             document.getElementById('form' + type.charAt(0).toUpperCase() + type.slice(1)).classList.add('active');
-
             if (type === 'schedule') {
                 const today = new Date().toISOString().split('T')[0];
                 document.getElementById('scheduleDate').min = today;
@@ -383,49 +363,28 @@
         function generateRoomName() {
             const adjectives = ['cosmic', 'stellar', 'orbital', 'lunar', 'solar', 'nebula', 'aurora', 'quantum'];
             const nouns = ['summit', 'sync', 'connect', 'hub', 'space', 'orbit', 'nexus', 'grid'];
-            const adj = adjectives[Math.floor(Math.random() * adjectives.length)];
-            const noun = nouns[Math.floor(Math.random() * nouns.length)];
-            const num = Math.floor(Math.random() * 1000);
-            return `${adj}-${noun}-${num}`;
+            return adjectives[Math.floor(Math.random() * adjectives.length)] + '-' + 
+                   nouns[Math.floor(Math.random() * nouns.length)] + '-' + 
+                   Math.floor(Math.random() * 1000);
         }
 
         function extractRoomFromInput(input) {
             input = input.trim();
-            if (input.includes('?room=')) {
-                const params = new URLSearchParams(input.split('?')[1]);
-                return params.get('room');
+            if (input.includes('room=')) {
+                const match = input.match(/room=([^&]+)/);
+                if (match) return decodeURIComponent(match[1]);
             }
             return input;
         }
 
-        async function checkConnection() {
-            try {
-                const res = await fetch(`${API_BASE}/health`);
-                return res.ok;
-            } catch (e) {
-                return false;
-            }
-        }
-
         function joinMeeting(name, room) {
-            window.location.href = `${API_BASE}/meeting?name=${encodeURIComponent(name)}&room=${encodeURIComponent(room)}`;
+            window.location.href = 'frontend/index.html?name=' + encodeURIComponent(name) + '&room=' + encodeURIComponent(room);
         }
 
         document.getElementById('createForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const name = document.getElementById('createName').value.trim();
-            
-            if (!name) {
-                showStatus('create', 'Please enter your name', 'error');
-                return;
-            }
-
-            const connected = await checkConnection();
-            if (!connected) {
-                showStatus('create', 'Cannot connect to server. Make sure the backend is running.', 'error');
-                return;
-            }
-
+            if (!name) { showStatus('create', 'Please enter your name', 'error'); return; }
             const room = generateRoomName();
             joinMeeting(name, room);
         });
@@ -434,22 +393,8 @@
             e.preventDefault();
             const name = document.getElementById('joinName').value.trim();
             const code = document.getElementById('joinCode').value.trim();
-            
-            if (!name) {
-                showStatus('join', 'Please enter your name', 'error');
-                return;
-            }
-            if (!code) {
-                showStatus('join', 'Please enter a meeting code or link', 'error');
-                return;
-            }
-
-            const connected = await checkConnection();
-            if (!connected) {
-                showStatus('join', 'Cannot connect to server. Make sure the backend is running.', 'error');
-                return;
-            }
-
+            if (!name) { showStatus('join', 'Please enter your name', 'error'); return; }
+            if (!code) { showStatus('join', 'Please enter a meeting code', 'error'); return; }
             const room = extractRoomFromInput(code);
             joinMeeting(name, room);
         });
@@ -459,56 +404,21 @@
             const topic = document.getElementById('scheduleTopic').value.trim();
             const date = document.getElementById('scheduleDate').value;
             const time = document.getElementById('scheduleTime').value;
-            
-            if (!topic) {
-                showStatus('schedule', 'Please enter a meeting topic', 'error');
-                return;
-            }
-            if (!date || !time) {
-                showStatus('schedule', 'Please select date and time', 'error');
-                return;
-            }
-
-            const scheduledDateTime = new Date(`${date}T${time}`);
-            if (scheduledDateTime <= new Date()) {
-                showStatus('schedule', 'Scheduled time must be in the future', 'error');
-                return;
-            }
-
-            const connected = await checkConnection();
-            if (!connected) {
-                showStatus('schedule', 'Cannot connect to server. Make sure the backend is running.', 'error');
-                return;
-            }
-
-            const scheduledMeetings = JSON.parse(localStorage.getItem('orbitScheduledMeetings') || '[]');
-            const room = generateRoomName();
-            
-            scheduledMeetings.push({
-                id: Date.now(),
-                topic,
-                date,
-                time,
-                room,
-                duration: document.getElementById('scheduleDuration').value
-            });
-            
-            localStorage.setItem('orbitScheduledMeetings', JSON.stringify(scheduledMeetings));
-            
-            showStatus('schedule', `Meeting scheduled! Room code: ${room}`, 'success');
+            if (!topic) { showStatus('schedule', 'Please enter a topic', 'error'); return; }
+            if (!date || !time) { showStatus('schedule', 'Please select date and time', 'error'); return; }
+            const meetings = JSON.parse(localStorage.getItem('orbitMeetings') || '[]');
+            meetings.push({ topic, date, time, room: generateRoomName() });
+            localStorage.setItem('orbitMeetings', JSON.stringify(meetings));
+            showStatus('schedule', 'Meeting scheduled!', 'success');
             setTimeout(hideForms, 2000);
         });
 
         function startNowFromSchedule() {
-            document.getElementById('scheduleTopic').value = document.getElementById('scheduleTopic').value || 'Scheduled Meeting';
             showForm('create');
-            document.getElementById('createName').focus();
         }
 
         const params = new URLSearchParams(window.location.search);
-        if (params.has('action')) {
-            showForm(params.get('action'));
-        }
+        if (params.has('action')) showForm(params.get('action'));
     </script>
 </body>
 </html>
