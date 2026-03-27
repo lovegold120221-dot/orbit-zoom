@@ -206,5 +206,26 @@ async def reload_caddy():
         raise HTTPException(status_code=500, detail=str(e))
 
 
+class LiveKitConfigUpdate(BaseModel):
+    livekit_url: Optional[str] = None
+    api_key: Optional[str] = None
+    api_secret: Optional[str] = None
+
+
+@app.post("/api/config/livekit")
+async def update_livekit_config(config: LiveKitConfigUpdate):
+    try:
+        if config.livekit_url:
+            settings.LIVEKIT_URL = config.livekit_url
+        if config.api_key:
+            settings.LIVEKIT_API_KEY = config.api_key
+        if config.api_secret:
+            settings.LIVEKIT_API_SECRET = config.api_secret
+        logger.info(f"LiveKit config updated: url={settings.LIVEKIT_URL}")
+        return {"status": "ok", "message": "LiveKit config updated"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 if __name__ == "__main__":
     uvicorn.run(app, host=settings.HOST, port=settings.PORT, log_level="info")
