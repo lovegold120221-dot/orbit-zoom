@@ -1,7 +1,12 @@
 fastapi==0.109.0
 uvicorn[standard]==0.27.0
 python-dotenv==1.0.0
-livekit==0.17.0
-livekit-api==0.5.0
+livekit>=0.17.0
+livekit-api>=0.5.0
+livekit-agents>=0.2.0
+livekit-plugins-openai>=0.2.0
+livekit-plugins-silero-vad>=0.2.0
+livekit-plugins-cartesia>=0.2.0
+livekit-plugins-deepgram>=0.2.0
 pydantic==2.5.3
 pydantic-settings==2.1.0
