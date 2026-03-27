@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orbit Meeting</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/livekit-client@latest/dist/livekit.umd.js"></script>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <!-- Branding -->
+    <div class="top-bar">
+        <div class="brand-orbit">
+            <i class="fa-solid fa-atom"></i> Orbit
+        </div>
+        <div class="meeting-info">
+            <span id="roomNameDisplay"></span>
+        </div>
+    </div>
+
+    <!-- Workspace -->
+    <div class="workspace">
+        <!-- Video Grid -->
+        <div class="video-container">
+            <div class="video-grid" id="videoGrid"></div>
+            <div class="video-placeholder" id="videoPlaceholder">
+                <div style="text-align: center; color: var(--text-secondary);">
+                    <i class="fa-solid fa-video" style="font-size: 48px; margin-bottom: 15px; opacity: 0.5;"></i>
+                    <p>Connecting to room...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dynamic Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2 id="sidebar-title">Messages</h2>
+                <button class="close-btn" onclick="uiController.closeSidebar()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <!-- Pane: Chat -->
+            <div class="sidebar-content" id="pane-chat"></div>
+
+            <!-- Pane: Participants -->
+            <div class="sidebar-content" id="pane-participants">
+                <button class="popup-item" id="muteAllBtn" style="justify-content: center; background: rgba(255,255,255,0.1);">Mute All</button>
+                <div id="participantsList"></div>
+            </div>
+
+            <!-- Pane: Transcript -->
+            <div class="sidebar-content" id="pane-transcript">
+                <div id="transcriptList"></div>
+            </div>
+
+            <!-- Pane: Translation -->
+            <div class="sidebar-content" id="pane-translate">
+                <label style="font-size: 12px; color: #888; display: block; margin-bottom: 8px;">My Spoken Language</label>
+                <select id="sourceLanguage" style="width:100%; padding:8px; margin-bottom:15px; background:rgba(0,0,0,0.5); color:white; border:1px solid var(--border-color); border-radius:4px;">
+                    <option value="en">English</option>
+                    <option value="es">Spanish</option>
+                    <option value="fr">French</option>
+                    <option value="de">German</option>
+                    <option value="ja">Japanese</option>
+                    <option value="zh">Chinese</option>
+                    <option value="tl">Tagalog</option>
+                </select>
+                <label style="font-size: 12px; color: #888; display: block; margin-bottom: 8px;">Translate to</label>
+                <select id="targetLanguage" style="width:100%; padding:8px; margin-bottom:15px; background:rgba(0,0,0,0.5); color:white; border:1px solid var(--border-color); border-radius:4px;">
+                    <option value="en">English</option>
+                    <option value="es">Spanish</option>
+                    <option value="fr">French</option>
+                    <option value="de">German</option>
+                    <option value="ja">Japanese</option>
+                    <option value="zh">Chinese</option>
+                    <option value="tl">Tagalog</option>
+                </select>
+                <button class="popup-item" id="enableTranslationBtn" style="justify-content: center; background: var(--accent-blue); margin-top: 20px;">Enable Translation</button>
+            </div>
+
+            <!-- Generic Input Area -->
+            <div class="sidebar-input" id="sidebar-input-area">
+                <input type="text" id="chatInput" placeholder="Type message here...">
+                <button id="sendChatBtn">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Controls -->
+    <div class="bottom-bar">
+        <div class="control-group">
+            
+            <!-- Group 1: A/V Controls -->
+            <div class="split-btn btn-wrapper">
+                <button class="btn-action" title="Mute/Unmute" id="btn-mic" onclick="uiController.toggleMicrophone()">
+                    <i class="fa-solid fa-microphone"></i>
+                </button>
+                <i class="fa-solid fa-chevron-up arrow" onclick="uiController.toggleMenu('audio-menu')"></i>
+                <div class="popup-menu" id="audio-menu">
+                    <h4>Select Microphone</h4>
+                    <div id="micList"></div>
+                    <div class="popup-divider"></div>
+                    <h4>Select Speaker</h4>
+                    <div id="speakerList"></div>
+                    <div class="popup-divider"></div>
+                    <button class="popup-item" onclick="uiController.showAudioSettings()"><i class="fa-solid fa-sliders"></i> Audio Settings...</button>
+                </div>
+            </div>
+
+            <div class="split-btn btn-wrapper">
+                <button class="btn-action" title="Start/Stop Video" id="btn-cam" onclick="uiController.toggleCamera()">
+                    <i class="fa-solid fa-video"></i>
+                </button>
+                <i class="fa-solid fa-chevron-up arrow" onclick="uiController.toggleMenu('video-menu')"></i>
+                <div class="popup-menu" id="video-menu">
+                    <h4>Select Camera</h4>
+                    <div id="cameraList"></div>
+                    <div class="popup-divider"></div>
+                    <button class="popup-item" onclick="uiController.showVirtualBackground()"><i class="fa-solid fa-wand-magic-sparkles"></i> Choose Virtual Background</button>
+                    <button class="popup-item" onclick="uiController.showVideoSettings()"><i class="fa-solid fa-gear"></i> Video Settings...</button>
+                </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- Group 2: Jitsi Core Engagement -->
+            <div class="btn-wrapper">
+                <button class="btn-action" title="Share your screen" onclick="uiController.toggleScreenShare()">
+                    <i class="fa-solid fa-desktop"></i>
+                </button>
+                <div class="popup-menu" id="share-menu">
+                    <button class="popup-item" onclick="uiController.startScreenShare('screen')"><i class="fa-solid fa-display"></i> Entire Screen</button>
+                    <button class="popup-item" onclick="uiController.startScreenShare('window')"><i class="fa-solid fa-window-maximize"></i> Application Window</button>
+                    <button class="popup-item" onclick="uiController.startScreenShare('browser')"><i class="fa-brands fa-chrome"></i> Chrome Tab</button>
+                </div>
+            </div>
+
+            <button class="btn-action" title="Open chat" onclick="uiController.openSidebar('Chat', 'pane-chat', true)">
+                <i class="fa-solid fa-comment-dots"></i>
+            </button>
+
+            <div class="btn-wrapper">
+                <button class="btn-action" title="Reactions / Raise Hand" onclick="uiController.toggleMenu('reactions-menu')">
+                    <i class="fa-solid fa-hand"></i>
+                </button>
+                <div class="popup-menu" id="reactions-menu">
+                    <button class="reaction-emoji" onclick="uiController.sendReaction('👏')">👏</button>
+                    <button class="reaction-emoji" onclick="uiController.sendReaction('👍')">👍</button>
+                    <button class="reaction-emoji" onclick="uiController.sendReaction('❤️')">❤️</button>
+                    <button class="reaction-emoji" onclick="uiController.sendReaction('😂')">😂</button>
+                    <button class="reaction-emoji" onclick="uiController.sendReaction('😮')">😮</button>
+                    <button class="raise-hand-btn" onclick="uiController.toggleHandRaise()"><i class="fa-solid fa-hand"></i> Raise Hand</button>
+                </div>
+            </div>
+
+            <button class="btn-action" title="Participants" onclick="uiController.openSidebar('Participants', 'pane-participants', false)">
+                <i class="fa-solid fa-user-group"></i>
+                <span class="participant-badge" id="participantCount">0</span>
+            </button>
+
+            <button class="btn-action" title="Toggle tile view" id="tileViewBtn" onclick="uiController.toggleTileView()">
+                <i class="fa-solid fa-table-cells"></i>
+            </button>
+
+            <div class="divider"></div>
+
+            <!-- Group 3: Extra Features -->
+            <div class="btn-wrapper">
+                <button class="btn-action" title="Security options" onclick="uiController.toggleMenu('security-menu')">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </button>
+                <div class="popup-menu" id="security-menu">
+                    <button class="popup-item" onclick="uiController.lockMeeting()"><i class="fa-solid fa-lock"></i> Lock Meeting</button>
+                    <button class="popup-item" onclick="uiController.toggleWaitingRoom()"><i class="fa-solid fa-check"></i> Enable Waiting Room</button>
+                    <div class="popup-divider"></div>
+                    <h4>Allow Participants to:</h4>
+                    <button class="popup-item" onclick="uiController.togglePermission('screenShare')"><i class="fa-solid fa-desktop"></i> Share Screen</button>
+                    <button class="popup-item" onclick="uiController.togglePermission('chat')"><i class="fa-solid fa-comment-dots"></i> Chat</button>
+                    <button class="popup-item" onclick="uiController.togglePermission('unmute')"><i class="fa-solid fa-microphone"></i> Unmute Themselves</button>
+                </div>
+            </div>
+            
+            <div class="btn-wrapper">
+                <button class="btn-action" title="Meeting Information" onclick="uiController.toggleMenu('info-menu')">
+                    <i class="fa-solid fa-info-circle"></i>
+                </button>
+                <div class="popup-menu" id="info-menu" style="width: 280px;">
+                    <h4 id="infoMeetingName" style="color:white; font-size: 14px; text-transform: none;">Orbit Meeting</h4>
+                    <p id="infoHostName" style="padding: 0 10px; font-size: 12px; color: #aaa; margin-bottom: 10px;">Host: You</p>
+                    <div class="popup-divider"></div>
+                    <p id="infoLink" style="padding: 10px; font-size: 12px; word-break: break-all;"></p>
+                    <button class="popup-item" onclick="uiController.copyMeetingLink()" style="justify-content: center; background: var(--accent-blue); margin: 0 10px 10px 10px;"><i class="fa-solid fa-copy"></i> Copy Link</button>
+                </div>
+            </div>
+
+            <div class="btn-wrapper">
+                <button class="btn-action" title="Start recording" onclick="uiController.toggleMenu('record-menu')">
+                    <i class="fa-solid fa-circle-dot"></i>
+                </button>
+                <div class="popup-menu" id="record-menu">
+                    <button class="popup-item" onclick="uiController.startRecording('local')"><i class="fa-solid fa-hard-drive"></i> Record on this Computer</button>
+                    <button class="popup-item" onclick="uiController.startRecording('cloud')"><i class="fa-solid fa-cloud"></i> Record to the Cloud</button>
+                </div>
+            </div>
+
+            <button class="btn-action" title="Show captions / Transcript" onclick="uiController.openSidebar('Transcript', 'pane-transcript', false)">
+                <i class="fa-solid fa-closed-captioning"></i>
+            </button>
+
+            <button class="btn-action" title="Live Translation" onclick="uiController.openSidebar('Translation Settings', 'pane-translate', false)">
+                <i class="fa-solid fa-language"></i>
+            </button>
+
+            <div class="btn-wrapper">
+                <button class="btn-action" title="Open Whiteboard" onclick="uiController.toggleMenu('wb-menu')">
+                    <i class="fa-solid fa-chalkboard"></i>
+                </button>
+                <div class="popup-menu" id="wb-menu">
+                    <button class="popup-item" onclick="uiController.openWhiteboard('new')"><i class="fa-solid fa-plus"></i> New Whiteboard</button>
+                    <button class="popup-item" onclick="uiController.openWhiteboard('existing')"><i class="fa-solid fa-folder-open"></i> Open Existing...</button>
+                </div>
+            </div>
+
+            <!-- Group 4: Leave Meeting -->
+            <button class="btn-end" title="Leave Meeting" onclick="uiController.showLeaveModal()">
+                <i class="fa-solid fa-phone-slash"></i>
+            </button>
+
+        </div>
+    </div>
+
+    <!-- Leave Modal -->
+    <div class="modal-overlay" id="leave-modal">
+        <div class="modal">
+            <h3>Leave Meeting?</h3>
+            <button class="modal-btn danger" id="endForAllBtn" onclick="uiController.endMeetingForAll()">End Meeting for All</button>
+            <button class="modal-btn secondary" onclick="uiController.leaveMeeting()">Leave Meeting</button>
+            <button class="popup-item" style="justify-content: center; margin-top: 15px;" onclick="uiController.closeLeaveModal()">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Connection Status -->
+    <div class="connection-status" id="connectionStatus">
+        <span id="connectionStatusText">Connecting...</span>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script src="js/livekit-client.js"></script>
+    <script src="js/ui-controller.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
