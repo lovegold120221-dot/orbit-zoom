@@ -7,7 +7,7 @@ const API_BASE_URL = (() => {
     if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
         return origin;
     }
-    return origin;
+    return 'https://pupils-manner-structures-julian.trycloudflare.com';
 })();
 
 console.log('API Base URL:', API_BASE_URL);
