@@ -171,5 +171,40 @@ async def serve_frontend(full_path: str):
     return FileResponse(index_path)
 
 
+CADDYFILE_PATH = "/root/Caddyfile"
+
+
+@app.post("/api/config/caddy")
+async def update_caddyfile(content: dict):
+    try:
+        caddyfile_content = content.get("caddyfile", "")
+        with open(CADDYFILE_PATH, "w") as f:
+            f.write(caddyfile_content)
+        logger.info("Caddyfile updated successfully")
+        return {"status": "ok", "message": "Caddyfile updated"}
+    except Exception as e:
+        logger.error(f"Caddyfile update error: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/config/reload-caddy")
+async def reload_caddy():
+    import subprocess
+
+    try:
+        result = subprocess.run(
+            ["caddy", "reload", "--config", CADDYFILE_PATH],
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
+        if result.returncode == 0:
+            return {"status": "ok", "message": "Caddy reloaded"}
+        else:
+            return {"status": "error", "message": result.stderr}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 if __name__ == "__main__":
     uvicorn.run(app, host=settings.HOST, port=settings.PORT, log_level="info")
