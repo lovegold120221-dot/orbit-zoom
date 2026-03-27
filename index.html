@@ -329,7 +329,16 @@
     </div>
 
     <script>
-        const API_BASE = window.location.origin + '/api';
+        const API_BASE = (() => {
+            const origin = window.location.origin;
+            if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
+                return origin + '/api';
+            }
+            if (origin.includes('vercel.app') || origin.includes('github.io')) {
+                return "http://168.231.78.113:8000/api";
+            }
+            return origin + '/api';
+        })();
 
         function showForm(type) {
             document.getElementById('actionCards').style.display = 'none';
@@ -378,7 +387,7 @@
         }
 
         function joinMeeting(name, room) {
-            window.location.href = 'frontend/index.html?name=' + encodeURIComponent(name) + '&room=' + encodeURIComponent(room);
+            window.location.href = '/frontend/index.html?name=' + encodeURIComponent(name) + '&room=' + encodeURIComponent(room);
         }
 
         document.getElementById('createForm').addEventListener('submit', async (e) => {

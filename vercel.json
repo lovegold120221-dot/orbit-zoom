@@ -3,7 +3,7 @@
   "buildCommand": null,
   "outputDirectory": ".",
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "https://orbit-zoom-backend.azurecontainerapps.io/api/$1" }
+    { "source": "/api/(.*)", "destination": "http://168.231.78.113:8000/api/$1" }
   ],
   "headers": [
     {
