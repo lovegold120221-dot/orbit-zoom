@@ -48,39 +48,18 @@ class APIClient {
         }
     }
 
-    async getToken(identity, roomName) {
+    async getToken(userId, roomId) {
         return this.request('/api/token', {
             method: 'POST',
             body: JSON.stringify({
-                identity,
-                roomName,
-                canPublish: true,
-                canPublishData: true,
-                canSubscribe: true,
+                user_id: userId,
+                room_id: roomId,
             }),
-        });
-    }
-
-    async createRoom(roomName) {
-        return this.request('/api/room', {
-            method: 'POST',
-            body: JSON.stringify({ name: roomName }),
-        });
-    }
-
-    async logEvent(event) {
-        return this.request('/api/logs', {
-            method: 'POST',
-            body: JSON.stringify(event),
         });
     }
 
     async healthCheck() {
         return this.request('/health');
-    }
-
-    async debugInfo() {
-        return this.request('/api/debug');
     }
 }
 

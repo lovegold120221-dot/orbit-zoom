@@ -1,23 +1,25 @@
 /**
  * Orbit Meeting - Main Application Entry Point
- * LiveKit-powered video conferencing interface
+ * Stream-powered video conferencing interface
  */
 
 class OrbitMeeting {
     constructor() {
-        this.roomName = this.getRoomFromURL() || this.generateRoomName();
-        this.userIdentity = this.getUserIdentity() || this.generateUserName();
+        this.roomId = this.getRoomFromURL() || this.generateRoomName();
+        this.userId = this.getUserId() || this.generateUserName();
         this.isConnected = false;
+        this.client = null;
+        this.call = null;
     }
 
     getRoomFromURL() {
         const params = new URLSearchParams(window.location.search);
-        return params.get('room') || params.get('roomName');
+        return params.get('room') || params.get('roomId');
     }
 
-    getUserIdentity() {
+    getUserId() {
         const params = new URLSearchParams(window.location.search);
-        return params.get('name') || params.get('identity');
+        return params.get('name') || params.get('userId');
     }
 
     generateRoomName() {
@@ -39,69 +41,40 @@ class OrbitMeeting {
     }
 
     async init() {
-        console.log('Initializing Orbit Meeting...', { room: this.roomName, user: this.userIdentity });
+        console.log('Initializing Orbit Meeting...', { room: this.roomId, user: this.userId });
         
         uiController.initializeEventListeners();
-        uiController.updateRoomName(this.roomName);
+        uiController.updateRoomName(this.roomId);
         uiController.updateConnectionStatus('connecting');
 
-        this.setupEventListeners();
-        
         await this.connectToRoom();
-    }
-
-    setupEventListeners() {
-        liveKitManager.on('connectionStateChanged', (state) => {
-            this.handleConnectionState(state);
-        });
-
-        liveKitManager.on('participantJoined', (participant) => {
-            console.log('Participant joined:', participant.identity);
-            uiController.updateParticipantsList();
-        });
-
-        liveKitManager.on('participantLeft', (participant) => {
-            console.log('Participant left:', participant.identity);
-            uiController.removeVideoParticipant(participant.sid);
-        });
-
-        liveKitManager.on('trackSubscribed', ({ track, participant }) => {
-            console.log('Track subscribed:', track.kind, participant.identity);
-            if (track.kind === window.LivekitClient.Track.Kind.Video) {
-                uiController.renderVideoParticipant(participant);
-            }
-        });
-
-        liveKitManager.on('trackUnsubscribed', ({ track, participant }) => {
-            console.log('Track unsubscribed:', track.kind, participant.identity);
-            if (track.kind === window.LivekitClient.Track.Kind.Video) {
-                uiController.renderVideoParticipant(participant);
-            }
-        });
-
-        liveKitManager.on('dataReceived', (payload) => {
-            this.handleDataReceived(payload);
-        });
-
-        liveKitManager.on('speakingChanged', (speakers) => {
-            this.updateSpeakingIndicators(speakers);
-        });
     }
 
     async connectToRoom() {
         try {
-            const response = await apiClient.getToken(this.userIdentity, this.roomName);
+            const response = await apiClient.getToken(this.userId, this.roomId);
             
-            await liveKitManager.connect(response.url, response.token, this.roomName);
+            const { StreamVideoClient } = window.StreamVideo;
             
+            this.client = new StreamVideoClient({
+                apiKey: response.api_key,
+                user: { id: response.user_id },
+                token: response.token,
+            });
+
+            this.call = this.client.call("default", response.room_id);
+
+            await this.call.join({ create: true });
+
             this.isConnected = true;
             uiController.updateConnectionStatus('connected');
             uiController.hideVideoPlaceholder();
-            
-            this.renderLocalParticipant();
             uiController.updateParticipantsList();
+            uiController.renderLocalParticipant(this.userId);
             
-            console.log('Connected to room:', this.roomName);
+            this.setupCallListeners();
+            
+            console.log('Connected to room:', this.roomId);
         } catch (error) {
             console.error('Failed to connect:', error);
             uiController.updateConnectionStatus('disconnected');
@@ -109,74 +82,57 @@ class OrbitMeeting {
         }
     }
 
-    renderLocalParticipant() {
-        const participant = liveKitManager.localParticipant;
-        if (participant) {
-            uiController.renderVideoParticipant(participant);
-        }
-    }
+    setupCallListeners() {
+        if (!this.call) return;
 
-    handleConnectionState(state) {
-        switch (state) {
-            case 'connected':
-                this.isConnected = true;
-                uiController.updateConnectionStatus('connected');
-                break;
-            case 'connecting':
-            case 'reconnecting':
-                uiController.updateConnectionStatus('connecting');
-                break;
-            case 'disconnected':
-                this.isConnected = false;
-                uiController.updateConnectionStatus('disconnected');
-                break;
-        }
-    }
-
-    handleDataReceived(payload) {
-        try {
-            const decoder = new TextDecoder();
-            const data = JSON.parse(decoder.decode(payload.data));
-            
-            switch (data.type) {
-                case 'chat':
-                    uiController.addChatMessage(data.sender, data.message);
-                    break;
-                case 'reaction':
-                    uiController.showReaction(data.emoji);
-                    break;
-                case 'hand_raise':
-                    console.log('Hand raise from:', data.sender, 'raised:', data.raised);
-                    break;
-                case 'lock_meeting':
-                    this.showNotification('Meeting has been locked', 'info');
-                    break;
-                case 'end_meeting':
-                    this.showNotification('Meeting ended by host', 'info');
-                    setTimeout(() => window.location.href = '/', 2000);
-                    break;
-            }
-        } catch (error) {
-            console.error('Failed to parse data packet:', error);
-        }
-    }
-
-    updateSpeakingIndicators(speakers) {
-        const speakerIds = new Set(speakers.map(s => s.sid));
-        document.querySelectorAll('.video-frame').forEach(frame => {
-            const sid = frame.id.replace('video-', '');
-            const indicator = frame.querySelector('.speaking-indicator') || document.createElement('div');
-            indicator.className = 'speaking-indicator';
-            indicator.innerHTML = '<i class="fa-solid fa-waveform-lines"></i>';
-            
-            if (speakerIds.has(sid)) {
-                if (!frame.querySelector('.speaking-indicator')) {
-                    frame.appendChild(indicator);
-                }
-            } else {
-                indicator.remove();
-            }
+        this.call.on("call.lifecycle.user_joined", (event) => {
+            console.log('User joined:', event.user.id);
+            uiController.renderVideoParticipant(event.user.id);
+            uiController.updateParticipantsList();
         });
+
+        this.call.on("call.lifecycle.user_left", (event) => {
+            console.log('User left:', event.user.id);
+            uiController.removeVideoParticipant(event.user.id);
+            uiController.updateParticipantsList();
+        });
+
+        this.call.on("member.joined", (event) => {
+            console.log('Member joined:', event.member.user.id);
+            uiController.updateParticipantsList();
+        });
+
+        this.call.on("member.left", (event) => {
+            console.log('Member left:', event.member.user.id);
+            uiController.updateParticipantsList();
+        });
+    }
+
+    async toggleMic(enabled) {
+        if (!this.call) return;
+        await this.call.muteAudio(!enabled);
+    }
+
+    async toggleCamera(enabled) {
+        if (!this.call) return;
+        await this.call.muteVideo(!enabled);
+    }
+
+    sendChatMessage(message) {
+        if (!this.call) return;
+        this.call.sendCustomEvent({ type: 'chat', message, sender: this.userId });
+    }
+
+    disconnect() {
+        if (this.call) {
+            this.call.leave();
+            this.call = null;
+        }
+        if (this.client) {
+            this.client.disconnect();
+            this.client = null;
+        }
+        this.isConnected = false;
     }
 
     showError(message) {
@@ -191,10 +147,6 @@ class OrbitMeeting {
         `;
         document.body.appendChild(errorDiv);
     }
-
-    showNotification(message, type = 'info') {
-        console.log(`[${type}] ${message}`);
-    }
 }
 
 const orbitMeeting = new OrbitMeeting();
@@ -205,6 +157,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 window.addEventListener('beforeunload', () => {
     if (orbitMeeting.isConnected) {
-        liveKitManager.disconnect();
+        orbitMeeting.disconnect();
     }
 });

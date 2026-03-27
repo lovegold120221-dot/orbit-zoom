@@ -6,10 +6,15 @@ export const config = {
 
 export default async function handler(request) {
   const url = new URL(request.url);
-  const path = url.pathname.replace('/api/', '/');
+  const path = url.pathname;
   
-  if (path === '/token' || path === '/health' || path === '/room' || path === '/logs' || path === '/debug') {
-    const targetUrl = `${BACKEND_URL}${path === '/token' ? '/api/token' : path === '/health' ? '/health' : `/api${path}`}`;
+  const endpoints = ['/token', '/health', '/room'];
+  const isApiEndpoint = endpoints.some(ep => path.endsWith(ep));
+  
+  if (isApiEndpoint) {
+    const targetUrl = path.startsWith('/api') 
+      ? `${BACKEND_URL}${path}`
+      : `${BACKEND_URL}${path}`;
     
     const headers = new Headers();
     headers.set('Content-Type', 'application/json');
