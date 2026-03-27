@@ -13,3 +13,6 @@ livekit.yaml
 nginx.conf
 requirements*.txt
 README.md
+backend
+*.py
+pyproject.toml

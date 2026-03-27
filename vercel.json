@@ -1,7 +1,8 @@
 {
+  "framework": null,
   "version": 2,
   "buildCommand": null,
-  "outputDirectory": ".",
+  "outputDirectory": "public",
   "rewrites": [
     { "source": "/api/(.*)", "destination": "http://168.231.78.113:8000/api/$1" }
   ],
