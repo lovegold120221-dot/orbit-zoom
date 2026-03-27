@@ -16,6 +16,7 @@
             --text-muted: #666666;
             --accent-blue: #0b84ff;
             --accent-blue-hover: #2980ff;
+            --accent-purple: #8b5cf6;
             --border-color: rgba(255, 255, 255, 0.1);
             --border-color-hover: rgba(255, 255, 255, 0.2);
             --shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
@@ -50,10 +51,10 @@
 
         .main-container { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 100px 20px 40px; }
 
-        .hero-title { font-size: 42px; font-weight: 700; margin-bottom: 10px; text-align: center; letter-spacing: -0.5px; }
-        .hero-subtitle { font-size: 16px; color: var(--text-secondary); margin-bottom: 50px; text-align: center; }
+        .hero-title { font-size: 48px; font-weight: 700; margin-bottom: 10px; text-align: center; letter-spacing: -0.5px; background: linear-gradient(135deg, #fff 0%, var(--accent-blue) 50%, var(--accent-purple) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .hero-subtitle { font-size: 18px; color: var(--text-secondary); margin-bottom: 50px; text-align: center; max-width: 600px; }
 
-        .action-cards { display: flex; gap: 24px; max-width: 1000px; width: 100%; justify-content: center; flex-wrap: wrap; }
+        .action-cards { display: flex; gap: 24px; max-width: 1200px; width: 100%; justify-content: center; flex-wrap: wrap; }
 
         .action-card { 
             background: var(--bg-card); 
@@ -61,7 +62,7 @@
             border: 1px solid var(--border-color); 
             border-radius: 16px; 
             padding: 32px; 
-            width: 300px; 
+            width: 350px; 
             text-align: center; 
             cursor: pointer; 
             transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
@@ -76,9 +77,9 @@
         }
 
         .action-card .icon-wrapper { 
-            width: 72px; 
-            height: 72px; 
-            background: rgba(11, 132, 255, 0.15); 
+            width: 80px; 
+            height: 80px; 
+            background: linear-gradient(135deg, rgba(11, 132, 255, 0.2), rgba(139, 92, 246, 0.2)); 
             border-radius: 50%; 
             display: flex; 
             align-items: center; 
@@ -88,13 +89,14 @@
         }
 
         .action-card:hover .icon-wrapper { 
-            background: rgba(11, 132, 255, 0.25);
             transform: scale(1.05);
+            background: linear-gradient(135deg, rgba(11, 132, 255, 0.3), rgba(139, 92, 246, 0.3));
         }
 
-        .action-card .icon-wrapper i { font-size: 28px; color: var(--accent-blue); }
-        .action-card h3 { font-size: 18px; font-weight: 600; margin-bottom: 8px; }
-        .action-card p { font-size: 13px; color: var(--text-secondary); line-height: 1.5; }
+        .action-card .icon-wrapper i { font-size: 32px; color: var(--accent-blue); }
+        .action-card h3 { font-size: 20px; font-weight: 600; margin-bottom: 8px; }
+        .action-card p { font-size: 14px; color: var(--text-secondary); line-height: 1.5; }
+        .action-card .badge { display: inline-block; padding: 4px 10px; background: rgba(139, 92, 246, 0.2); color: var(--accent-purple); border-radius: 12px; font-size: 11px; font-weight: 600; margin-top: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
 
         .form-container { 
             display: none; 
@@ -103,7 +105,7 @@
             border: 1px solid var(--border-color); 
             border-radius: 16px; 
             padding: 40px; 
-            width: 420px; 
+            width: 450px; 
             max-width: 95%;
             box-shadow: var(--shadow);
         }
@@ -134,13 +136,10 @@
         .form-group input:focus { border-color: var(--accent-blue); }
         .form-group input::placeholder { color: var(--text-muted); }
 
-        .form-row { display: flex; gap: 12px; }
-        .form-row .form-group { flex: 1; }
-
         .btn-primary { 
             width: 100%; 
             padding: 16px; 
-            background: var(--accent-blue); 
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple)); 
             border: none; 
             border-radius: 8px; 
             color: white; 
@@ -153,7 +152,7 @@
             justify-content: center;
             gap: 8px;
         }
-        .btn-primary:hover { background: var(--accent-blue-hover); transform: translateY(-1px); }
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 20px rgba(11, 132, 255, 0.4); }
 
         .btn-secondary { 
             width: 100%; 
@@ -178,8 +177,6 @@
         .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--border-color); }
         .divider span { padding: 0 16px; }
 
-        .schedule-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-
         .status-msg { 
             padding: 12px 16px; 
             border-radius: 8px; 
@@ -195,9 +192,14 @@
         .footer a { color: var(--accent-blue); text-decoration: none; }
         .footer a:hover { text-decoration: underline; }
 
-        .features-row { display: flex; gap: 40px; margin-top: 60px; justify-content: center; }
+        .features-row { display: flex; gap: 40px; margin-top: 60px; justify-content: center; flex-wrap: wrap; }
         .feature-item { display: flex; align-items: center; gap: 10px; color: var(--text-secondary); font-size: 13px; }
         .feature-item i { color: var(--accent-blue); font-size: 16px; }
+
+        .agent-preview { display: flex; align-items: center; gap: 8px; color: var(--accent-purple); font-size: 13px; margin-top: 16px; }
+        .agent-preview i { font-size: 16px; }
+        .pulse { animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
     </style>
 </head>
 <body>
@@ -214,24 +216,26 @@
     </div>
 
     <div class="main-container">
-        <h1 class="hero-title">Video Conferencing</h1>
-        <p class="hero-subtitle">Secure, high-quality meetings powered by LiveKit</p>
+        <h1 class="hero-title">Orbit Meeting</h1>
+        <p class="hero-subtitle">Video conferencing with AI-powered voice assistant. Create meetings, collaborate with your team, and get instant help from our AI agent.</p>
 
         <div class="action-cards" id="actionCards">
             <div class="action-card" onclick="showForm('create')">
                 <div class="icon-wrapper"><i class="fa-solid fa-video"></i></div>
-                <h3>Create Meeting</h3>
-                <p>Start an instant meeting and invite others to join</p>
+                <h3>Video Meeting</h3>
+                <p>Start an instant video meeting with screen sharing, chat, and AI assistant</p>
+                <span class="badge">Popular</span>
+            </div>
+            <div class="action-card" onclick="showForm('agent')">
+                <div class="icon-wrapper"><i class="fa-solid fa-robot"></i></div>
+                <h3>AI Assistant</h3>
+                <p>Chat with our AI voice assistant. Get help, answers, and support instantly</p>
+                <div class="agent-preview"><i class="fa-solid fa-wand-magic-sparkles pulse"></i> Powered by Gemini</div>
             </div>
             <div class="action-card" onclick="showForm('join')">
                 <div class="icon-wrapper"><i class="fa-solid fa-right-to-bracket"></i></div>
                 <h3>Join Meeting</h3>
                 <p>Enter a meeting code or link to join an existing session</p>
-            </div>
-            <div class="action-card" onclick="showForm('schedule')">
-                <div class="icon-wrapper"><i class="fa-solid fa-calendar-plus"></i></div>
-                <h3>Schedule Meeting</h3>
-                <p>Plan a meeting for later with date and time settings</p>
             </div>
         </div>
 
@@ -239,7 +243,7 @@
             <button class="back-btn" onclick="hideForms()"><i class="fa-solid fa-arrow-left"></i> Back</button>
             <div class="form-header">
                 <div class="icon-wrapper"><i class="fa-solid fa-video"></i></div>
-                <h3>Create Meeting</h3>
+                <h3>Video Meeting</h3>
             </div>
             <div class="status-msg" id="createStatus"></div>
             <form id="createForm">
@@ -248,7 +252,25 @@
                     <input type="text" id="createName" placeholder="Enter your name" required>
                 </div>
                 <button type="submit" class="btn-primary">
-                    <i class="fa-solid fa-plus"></i> Create Meeting
+                    <i class="fa-solid fa-plus"></i> Start Meeting
+                </button>
+            </form>
+        </div>
+
+        <div class="form-container" id="formAgent">
+            <button class="back-btn" onclick="hideForms()"><i class="fa-solid fa-arrow-left"></i> Back</button>
+            <div class="form-header">
+                <div class="icon-wrapper"><i class="fa-solid fa-robot"></i></div>
+                <h3>AI Assistant</h3>
+            </div>
+            <div class="status-msg" id="agentStatus"></div>
+            <form id="agentForm">
+                <div class="form-group">
+                    <label>Your Name</label>
+                    <input type="text" id="agentName" placeholder="Enter your name" required>
+                </div>
+                <button type="submit" class="btn-primary">
+                    <i class="fa-solid fa-robot"></i> Talk to AI Assistant
                 </button>
             </form>
         </div>
@@ -274,58 +296,17 @@
                 </button>
             </form>
         </div>
-
-        <div class="form-container" id="formSchedule">
-            <button class="back-btn" onclick="hideForms()"><i class="fa-solid fa-arrow-left"></i> Back</button>
-            <div class="form-header">
-                <div class="icon-wrapper"><i class="fa-solid fa-calendar-plus"></i></div>
-                <h3>Schedule Meeting</h3>
-            </div>
-            <div class="status-msg" id="scheduleStatus"></div>
-            <form id="scheduleForm">
-                <div class="form-group">
-                    <label>Topic</label>
-                    <input type="text" id="scheduleTopic" placeholder="Meeting topic or title" required>
-                </div>
-                <div class="schedule-grid">
-                    <div class="form-group">
-                        <label>Date</label>
-                        <input type="date" id="scheduleDate" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Time</label>
-                        <input type="time" id="scheduleTime" required>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>Duration</label>
-                    <select id="scheduleDuration">
-                        <option value="30">30 minutes</option>
-                        <option value="45">45 minutes</option>
-                        <option value="60" selected>1 hour</option>
-                        <option value="90">1.5 hours</option>
-                        <option value="120">2 hours</option>
-                    </select>
-                </div>
-                <button type="submit" class="btn-primary">
-                    <i class="fa-solid fa-calendar-check"></i> Schedule Meeting
-                </button>
-                <div class="divider"><span>or</span></div>
-                <button type="button" class="btn-secondary" onclick="startNowFromSchedule()">
-                    <i class="fa-solid fa-bolt"></i> Start Meeting Now
-                </button>
-            </form>
-        </div>
     </div>
 
     <div class="features-row">
         <div class="feature-item"><i class="fa-solid fa-shield-halved"></i> End-to-end encrypted</div>
+        <div class="feature-item"><i class="fa-solid fa-brain"></i> AI-powered</div>
         <div class="feature-item"><i class="fa-solid fa-globe"></i> Global CDN</div>
         <div class="feature-item"><i class="fa-solid fa-users"></i> Up to 100 participants</div>
     </div>
 
     <div class="footer">
-        Powered by <a href="https://livekit.io" target="_blank">LiveKit</a> • Built with Orbit by Eburon AI
+        Powered by <a href="https://livekit.io" target="_blank">LiveKit</a> • Built with Orbit
     </div>
 
     <script>
@@ -344,11 +325,6 @@
             document.querySelector('.features-row').style.display = 'none';
             document.querySelectorAll('.form-container').forEach(f => f.classList.remove('active'));
             document.getElementById('form' + type.charAt(0).toUpperCase() + type.slice(1)).classList.add('active');
-            if (type === 'schedule') {
-                const today = new Date().toISOString().split('T')[0];
-                document.getElementById('scheduleDate').min = today;
-                document.getElementById('scheduleDate').value = today;
-            }
         }
 
         function hideForms() {
@@ -383,8 +359,9 @@
             return input;
         }
 
-        function joinMeeting(name, room) {
-            window.location.href = '/frontend/index.html?name=' + encodeURIComponent(name) + '&room=' + encodeURIComponent(room);
+        function joinMeeting(name, room, withAgent = false) {
+            const url = withAgent ? '/frontend/agent.html' : '/frontend/index.html';
+            window.location.href = url + '?name=' + encodeURIComponent(name) + '&room=' + encodeURIComponent(room);
         }
 
         document.getElementById('createForm').addEventListener('submit', async (e) => {
@@ -393,6 +370,14 @@
             if (!name) { showStatus('create', 'Please enter your name', 'error'); return; }
             const room = generateRoomName();
             joinMeeting(name, room);
+        });
+
+        document.getElementById('agentForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('agentName').value.trim();
+            if (!name) { showStatus('agent', 'Please enter your name', 'error'); return; }
+            const room = 'ai-' + generateRoomName();
+            joinMeeting(name, room, true);
         });
 
         document.getElementById('joinForm').addEventListener('submit', async (e) => {
@@ -404,27 +389,6 @@
             const room = extractRoomFromInput(code);
             joinMeeting(name, room);
         });
-
-        document.getElementById('scheduleForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const topic = document.getElementById('scheduleTopic').value.trim();
-            const date = document.getElementById('scheduleDate').value;
-            const time = document.getElementById('scheduleTime').value;
-            if (!topic) { showStatus('schedule', 'Please enter a topic', 'error'); return; }
-            if (!date || !time) { showStatus('schedule', 'Please select date and time', 'error'); return; }
-            const meetings = JSON.parse(localStorage.getItem('orbitMeetings') || '[]');
-            meetings.push({ topic, date, time, room: generateRoomName() });
-            localStorage.setItem('orbitMeetings', JSON.stringify(meetings));
-            showStatus('schedule', 'Meeting scheduled!', 'success');
-            setTimeout(hideForms, 2000);
-        });
-
-        function startNowFromSchedule() {
-            showForm('create');
-        }
-
-        const params = new URLSearchParams(window.location.search);
-        if (params.has('action')) showForm(params.get('action'));
     </script>
 </body>
 </html>

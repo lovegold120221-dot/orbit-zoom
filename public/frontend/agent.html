@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orbit AI Assistant</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/livekit-client@latest/dist/livekit.umd.js"></script>
+    <style>
+        :root {
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #111111;
+            --bg-card: rgba(30, 30, 30, 0.8);
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0a0;
+            --accent-blue: #0b84ff;
+            --accent-purple: #8b5cf6;
+            --accent-green: #34c759;
+            --accent-red: #ff3b30;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 24px;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .brand { display: flex; align-items: center; gap: 12px; font-weight: 700; font-size: 18px; }
+        .brand i { color: var(--accent-purple); font-size: 24px; }
+        .room-name { color: var(--text-secondary); font-size: 14px; }
+
+        .main-container {
+            flex: 1;
+            display: flex;
+            padding: 24px;
+            gap: 24px;
+            max-height: calc(100vh - 70px);
+        }
+
+        .video-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .video-grid {
+            flex: 1;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 16px;
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            padding: 16px;
+            min-height: 400px;
+        }
+
+        .video-frame {
+            background: var(--bg-card);
+            border-radius: 12px;
+            aspect-ratio: 16/9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .video-frame.local { border: 2px solid var(--accent-blue); }
+        .video-frame.agent { border: 2px solid var(--accent-purple); }
+
+        .video-placeholder {
+            text-align: center;
+            color: var(--text-secondary);
+        }
+
+        .video-placeholder i { font-size: 48px; margin-bottom: 12px; opacity: 0.5; }
+
+        .participant-info {
+            position: absolute;
+            bottom: 12px;
+            left: 12px;
+            background: rgba(0,0,0,0.6);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .speaking-indicator {
+            width: 8px;
+            height: 8px;
+            background: var(--accent-green);
+            border-radius: 50%;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            padding: 16px;
+            background: var(--bg-secondary);
+            border-radius: 12px;
+        }
+
+        .control-btn {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .control-btn.mic { background: var(--bg-card); color: var(--text-primary); }
+        .control-btn.mic.off { background: var(--accent-red); color: white; }
+        .control-btn.camera { background: var(--bg-card); color: var(--text-primary); }
+        .control-btn.camera.off { background: var(--accent-red); color: white; }
+        .control-btn.end { background: var(--accent-red); color: white; }
+        .control-btn.end:hover { background: #cc2e26; }
+
+        .sidebar {
+            width: 350px;
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .sidebar-header h3 { font-size: 16px; font-weight: 600; }
+        .close-btn { background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: 18px; }
+
+        .chat-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .message {
+            max-width: 85%;
+            padding: 12px 16px;
+            border-radius: 16px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .message.agent {
+            background: rgba(139, 92, 246, 0.2);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+        }
+
+        .message.user {
+            background: var(--accent-blue);
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message-sender { font-size: 12px; color: var(--text-secondary); margin-bottom: 4px; }
+
+        .chat-input {
+            padding: 16px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            gap: 8px;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 12px 16px;
+            background: var(--bg-card);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 24px;
+            color: white;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .chat-input input:focus { border-color: var(--accent-blue); }
+
+        .chat-input button {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: none;
+            background: var(--accent-blue);
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .status-bar {
+            padding: 12px 24px;
+            background: var(--bg-secondary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .connection-status { display: flex; align-items: center; gap: 8px; }
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; }
+        .status-dot.connected { background: var(--accent-green); }
+        .status-dot.connecting { background: #ffcc00; animation: pulse 1s infinite; }
+        .status-dot.disconnected { background: var(--accent-red); }
+
+        .agent-typing { display: none; padding: 12px 16px; color: var(--text-secondary); font-size: 13px; }
+        .agent-typing.show { display: flex; align-items: center; gap: 8px; }
+        .typing-dots { display: flex; gap: 4px; }
+        .typing-dots span { width: 6px; height: 6px; background: var(--accent-purple); border-radius: 50%; animation: bounce 1.4s infinite; }
+        .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes bounce { 0%, 60%, 100% { transform: translateY(0); } 30% { transform: translateY(-4px); } }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="brand">
+            <i class="fa-solid fa-atom"></i> Orbit AI
+        </div>
+        <div class="room-name" id="roomName">Connecting...</div>
+    </div>
+
+    <div class="main-container">
+        <div class="video-section">
+            <div class="video-grid" id="videoGrid">
+                <div class="video-frame local" id="localVideo">
+                    <div class="video-placeholder">
+                        <i class="fa-solid fa-user"></i>
+                        <p>You</p>
+                    </div>
+                </div>
+                <div class="video-frame agent" id="agentVideo">
+                    <div class="video-placeholder">
+                        <i class="fa-solid fa-robot"></i>
+                        <p>AI Assistant</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="controls">
+                <button class="control-btn mic" id="micBtn" title="Toggle Microphone">
+                    <i class="fa-solid fa-microphone"></i>
+                </button>
+                <button class="control-btn camera off" id="cameraBtn" title="Toggle Camera">
+                    <i class="fa-solid fa-video-slash"></i>
+                </button>
+                <button class="control-btn end" id="endBtn" title="Leave Meeting">
+                    <i class="fa-solid fa-phone-slash"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h3><i class="fa-solid fa-comments"></i> Chat</h3>
+                <button class="close-btn"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="chat-container" id="chatContainer">
+                <div class="message agent">
+                    <div class="message-sender">AI Assistant</div>
+                    Hello! I'm your AI assistant. How can I help you today?
+                </div>
+            </div>
+            <div class="agent-typing" id="agentTyping">
+                <div class="typing-dots">
+                    <span></span><span></span><span></span>
+                </div>
+                AI is typing...
+            </div>
+            <div class="chat-input">
+                <input type="text" id="chatInput" placeholder="Type a message...">
+                <button id="sendBtn"><i class="fa-solid fa-paper-plane"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <div class="status-bar">
+        <div class="connection-status">
+            <span class="status-dot connecting" id="statusDot"></span>
+            <span id="statusText">Connecting...</span>
+        </div>
+        <div id="participantCount">1 participant</div>
+    </div>
+
+    <script>
+        const API_BASE = (() => {
+            const origin = window.location.origin;
+            if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
+                return origin;
+            }
+            return 'https://pupils-manner-structures-julian.trycloudflare.com';
+        })();
+
+        const params = new URLSearchParams(window.location.search);
+        const roomName = params.get('room') || 'ai-' + Date.now();
+        const userName = params.get('name') || 'User';
+
+        document.getElementById('roomName').textContent = roomName;
+
+        let room = null;
+        let localParticipant = null;
+        let isMicOn = true;
+        let isCameraOn = false;
+
+        async function connectToRoom() {
+            try {
+                updateStatus('connecting', 'Connecting...');
+                
+                const response = await fetch(API_BASE + '/api/token', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        identity: userName,
+                        roomName: roomName,
+                        canPublish: true,
+                        canPublishData: true,
+                        canSubscribe: true
+                    })
+                });
+
+                if (!response.ok) throw new Error('Failed to get token');
+                
+                const data = await response.json();
+                
+                room = new LivekitClient.Room({
+                    adaptiveStream: true,
+                    dynacast: true
+                });
+
+                await room.connect(data.url, data.token);
+                
+                localParticipant = room.localParticipant;
+                updateStatus('connected', 'Connected');
+
+                room.on(LivekitClient.RoomEvent.ParticipantConnected, handleParticipantConnected);
+                room.on(LivekitClient.RoomEvent.TrackSubscribed, handleTrackSubscribed);
+                room.on(LivekitClient.RoomEvent.DataReceived, handleDataReceived);
+
+                enableMic();
+                
+            } catch (error) {
+                console.error('Connection error:', error);
+                updateStatus('disconnected', 'Connection failed');
+            }
+        }
+
+        function handleParticipantConnected(participant) {
+            document.getElementById('participantCount').textContent = 
+                room.participants.size + 1 + ' participants';
+        }
+
+        function handleTrackSubscribed(track, publication, participant) {
+            if (track.kind === LivekitClient.Track.Kind.Video) {
+                const videoFrame = document.getElementById('agentVideo');
+                const container = videoFrame.querySelector('.video-placeholder') || videoFrame;
+                track.attach(container);
+                container.querySelector('.video-placeholder')?.remove();
+            }
+        }
+
+        function handleDataReceived(payload, participant) {
+            try {
+                const decoder = new TextDecoder();
+                const data = JSON.parse(decoder.decode(payload));
+                
+                if (data.type === 'chat') {
+                    addMessage(data.message, data.sender === userName ? 'user' : 'agent');
+                }
+            } catch (e) {}
+        }
+
+        function updateStatus(status, text) {
+            const dot = document.getElementById('statusDot');
+            const textEl = document.getElementById('statusText');
+            dot.className = 'status-dot ' + status;
+            textEl.textContent = text;
+        }
+
+        function addMessage(text, type) {
+            const container = document.getElementById('chatContainer');
+            const div = document.createElement('div');
+            div.className = 'message ' + type;
+            div.innerHTML = `<div class="message-sender">${type === 'agent' ? 'AI Assistant' : userName}</div>${text}`;
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function sendChatMessage() {
+            const input = document.getElementById('chatInput');
+            const text = input.value.trim();
+            if (!text) return;
+
+            addMessage(text, 'user');
+            input.value = '';
+
+            document.getElementById('agentTyping').classList.add('show');
+            
+            setTimeout(() => {
+                document.getElementById('agentTyping').classList.remove('show');
+                addMessage("I'm here to help! In a real meeting, I would respond to your message using AI.", 'agent');
+            }, 1500);
+
+            if (room && localParticipant) {
+                const data = new TextEncoder().encode(JSON.stringify({
+                    type: 'chat',
+                    message: text,
+                    sender: userName
+                }));
+                room.localParticipant.publishData(data);
+            }
+        }
+
+        function enableMic() {
+            if (!localParticipant) return;
+            navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+                const audioTrack = new LivekitClient.LocalAudioTrack({ audio: true });
+                localParticipant.publishTrack(audioTrack);
+                isMicOn = true;
+                document.getElementById('micBtn').classList.remove('off');
+                document.getElementById('micBtn').innerHTML = '<i class="fa-solid fa-microphone"></i>';
+            }).catch(console.error);
+        }
+
+        document.getElementById('micBtn').addEventListener('click', () => {
+            if (isMicOn) {
+                localParticipant?.mutePublish();
+                document.getElementById('micBtn').classList.add('off');
+                document.getElementById('micBtn').innerHTML = '<i class="fa-solid fa-microphone-slash"></i>';
+            } else {
+                enableMic();
+            }
+            isMicOn = !isMicOn;
+        });
+
+        document.getElementById('cameraBtn').addEventListener('click', () => {
+            isCameraOn = !isCameraOn;
+            document.getElementById('cameraBtn').classList.toggle('off');
+        });
+
+        document.getElementById('endBtn').addEventListener('click', () => {
+            if (room) room.disconnect();
+            window.location.href = '/';
+        });
+
+        document.getElementById('sendBtn').addEventListener('click', sendChatMessage);
+        document.getElementById('chatInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendChatMessage();
+        });
+
+        connectToRoom();
+    </script>
+</body>
+</html>
