@@ -7,7 +7,7 @@ const API_BASE_URL = (() => {
     if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
         return origin;
     }
-    return 'http://168.231.78.113:8000';
+    return origin;
 })();
 
 console.log('API Base URL:', API_BASE_URL);

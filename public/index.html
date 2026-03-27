@@ -329,13 +329,7 @@
     </div>
 
     <script>
-        const API_BASE = (() => {
-            const origin = window.location.origin;
-            if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
-                return origin + '/api';
-            }
-            return 'http://168.231.78.113:8000/api';
-        })();
+        const API_BASE = window.location.origin + '/api';
 
         function showForm(type) {
             document.getElementById('actionCards').style.display = 'none';
